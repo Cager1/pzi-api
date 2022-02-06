@@ -25,7 +25,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-
 //  Protected routes User -> :
 //                            Make requests for service
 //                            Make an appointment
@@ -40,6 +39,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //                                         View messages and service requests -> archive requests and messages
 //                                         Accept or decline service requests
 
+Route::group(['middleware' => ['auth:sanctum', 'ability:service-technician,admin']], function () {
+});
 
 
 // Protected routes Administrator -> :
@@ -47,5 +48,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //                                    Update any data in the system (database)
 //                                    Upkeep, backup and restore database
 
+Route::group(['middleware' => ['auth:sanctum', 'ability:admin']], function () {
+    Route::resource('roles', RoleController::class);
+});
 
-Route::resource('roles', RoleController::class);

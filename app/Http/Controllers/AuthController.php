@@ -21,11 +21,8 @@ class AuthController extends Controller
 
         $user = User::create($attributes);
 
-        $token = $user->createToken('userToken', [''])->plainTextToken;
-
         $response = [
             'user' => $user,
-            'token' => $token,
         ];
 
         return response($response, 201);
@@ -50,7 +47,13 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
-        $authToken = $user->createToken('auth-token')->plainTextToken;
+        if ($user->role_id == 1) {
+            $authToken = $user->createToken('auth-token', ['admin'])->plainTextToken;
+        } elseif ($user->role_id == 2) {
+            $authToken = $user->createToken('auth-token', ['service-technician'])->plainTextToken;
+        } else {
+            $authToken = $user->createToken('auth-token')->plainTextToken;
+        }
 
         return response()->json([
             'access_token' => $authToken,
