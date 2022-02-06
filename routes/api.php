@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,14 +17,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//  Public routes
+//  Public routes Guest auth -> :
+//                              View posts
+//                              Register as user
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
 
-//  Protected routes
+//  Protected routes User -> :
+//                            Make requests for service
+//                            Make an appointment
+//                            Send a message to the service technician
+//                            View and update personal data
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+// Protected routes Service Technician -> :
+//                                         View and update personal data
+//                                         View messages and service requests -> archive requests and messages
+//                                         Accept or decline service requests
+
+
+
+// Protected routes Administrator -> :
+//                                    Give or take permissions from users
+//                                    Update any data in the system (database)
+//                                    Upkeep, backup and restore database
+
+
+Route::resource('roles', RoleController::class);
