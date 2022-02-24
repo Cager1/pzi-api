@@ -1,7 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceTypeController;
+use App\Http\Controllers\UserController;
+use App\Models\ServiceType;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +29,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [PasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [PasswordController::class, 'reset']);
+
+
 
 
 //  Protected routes User -> :
@@ -32,6 +42,7 @@ Route::post('/login', [AuthController::class, 'login']);
 //                            View and update personal data
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'getUser']);
 });
 
 // Protected routes Service Technician -> :
@@ -39,16 +50,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //                                         View messages and service requests -> archive requests and messages
 //                                         Accept or decline service requests
 
-Route::group(['middleware' => ['auth:sanctum', 'ability:service-technician,admin']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'ability:Serviser,Admin']], function () {
+    Route::resource('jobs', JobController::class);
+    Route::resource('services', ServiceController::class);
 });
 
 
 // Protected routes Administrator -> :
 //                                    Give or take permissions from users
-//                                    Update any data in the system (database)
+//                                    Update any data in the system (database)jobs
 //                                    Upkeep, backup and restore database
 
-Route::group(['middleware' => ['auth:sanctum', 'ability:admin']], function () {
-    Route::resource('roles', RoleController::class);
+Route::group(['middleware' => ['auth:sanctum', 'ability:Admin']], function () {
+    Route::resource('admin/roles', RoleController::class);
+    Route::resource('admin/users', UserController::class);
 });
 

@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return Role[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Http\Response
+     * @return Collection|Role[]
      */
     public function index()
     {
@@ -22,12 +24,12 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|unique:roles,name',
         ]);
         return Role::create($request->all());
     }
@@ -35,12 +37,18 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Role $role
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
-        return Role::find($id);
+        if (Role::find($id)) {
+            return Role::find($id);
+        } else {
+            return response()->json([
+                'message' => 'Show: There is no role with id of '.$id.' in database'
+            ]);
+        }
     }
 
     /**
@@ -48,27 +56,37 @@ class RoleController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $name)
     {
-        $role = Role::find($id);
-        $role->update($request->all());
-        return $role;
+        if (Role::where('name', $name)->first()) {
+            return Role::where('name', $name)->first()->update($request->all());
+        } else {
+            return response()->json([
+                'message' => "Update: Requested role does no exist",
+            ]);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param Role $role
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy($name)
     {
-        $name = Role::find($id)->name;
-        Role::destroy($id);
-        return response()->json([
-            'message' => $name." role deleted",
-        ]);
+        if (Role::where('name', $name)->first()) {
+            $role = Role::where('name', $name)->first();
+            Role::destroy($role->id);
+            return response()->json([
+                'message' => $name." role deleted",
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Delete: Requested role does not exist',
+            ]);
+        }
     }
 }

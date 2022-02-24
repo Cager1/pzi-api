@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
     ];
 
     /**
@@ -48,7 +52,19 @@ class User extends Authenticatable
         $this->attributes['password'] = bcrypt($password);
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+
+        $url = 'http://localhost:3000/reset-password?token=' . $token;
+
+        $this->notify(new ResetPasswordNotification($url));
+    }
+
     public function role() {
         return $this->belongsTo(Role::class);
+    }
+
+    public function jobs() {
+        return $this->hasMany(Job::class);
     }
 }

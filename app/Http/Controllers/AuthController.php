@@ -17,6 +17,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|string|unique:users,email|max:255',
             'password' => 'required|string|confirmed|min:6|max:255',
+            'role_id' => 'numeric',
         ]);
 
         $user = User::create($attributes);
@@ -47,16 +48,22 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
-        if ($user->role_id == 1) {
-            $authToken = $user->createToken('auth-token', ['admin'])->plainTextToken;
-        } elseif ($user->role_id == 2) {
-            $authToken = $user->createToken('auth-token', ['service-technician'])->plainTextToken;
-        } else {
-            $authToken = $user->createToken('auth-token')->plainTextToken;
-        }
+        $user_role = $user->role;
+
+        $authToken = $user->createToken('auth-token', [$user_role->name])->plainTextToken;
 
         return response()->json([
+            'user' => $user,
             'access_token' => $authToken,
+        ]);
+    }
+
+    public function getUser(Request $request) {
+        $authUser = auth()->user();
+        $user = User::find($authUser->id);
+        return \response()->json([
+            'role' => $user->role,
+            'user' => $user,
         ]);
     }
 
