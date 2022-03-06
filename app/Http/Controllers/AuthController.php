@@ -20,6 +20,8 @@ class AuthController extends Controller
             'role_id' => 'numeric',
         ]);
 
+        var_dump($attributes);
+
         $user = User::create($attributes);
 
         $response = [
@@ -40,8 +42,8 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'The given data is invalid',
                 'errors' => [
-                    'password' => [
-                        'Invalid Credentials'
+                    'E-mail' => [
+                        'Netočni email ili zaporka'
                     ],
                 ]
             ], 422);
@@ -53,7 +55,8 @@ class AuthController extends Controller
         $authToken = $user->createToken('auth-token', [$user_role->name])->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->jobs,
+            'jobs' => $user->jobs,
             'access_token' => $authToken,
         ]);
     }
@@ -64,6 +67,7 @@ class AuthController extends Controller
         return \response()->json([
             'role' => $user->role,
             'user' => $user,
+            'jobs' => $user->jobs,
         ]);
     }
 

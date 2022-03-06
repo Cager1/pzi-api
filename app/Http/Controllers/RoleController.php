@@ -24,14 +24,18 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|unique:roles,name',
         ]);
-        return Role::create($request->all());
+        $role = Role::create($request->all());
+        return response()->json([
+            "role" => $role,
+            "message" => "Uloga ".$role->name." kreirana"
+        ]);
     }
 
     /**
@@ -43,10 +47,14 @@ class RoleController extends Controller
     public function show($id)
     {
         if (Role::find($id)) {
-            return Role::find($id);
+            $role = Role::find($id);
+            return respone()->json([
+                "role" => $role,
+                "message" => "Uloga ".$role->name." pronađena"
+            ]);
         } else {
             return response()->json([
-                'message' => 'Show: There is no role with id of '.$id.' in database'
+                'message' => 'Tražena uloga nije pronađena'
             ]);
         }
     }
@@ -61,7 +69,12 @@ class RoleController extends Controller
     public function update(Request $request, $name)
     {
         if (Role::where('name', $name)->first()) {
-            return Role::where('name', $name)->first()->update($request->all());
+            Role::where('name', $name)->first()->update($request->all());
+            $role = Role::where('name', $request->name)->first();
+            return response()->json([
+                'role' => $role,
+                'message' => "Uloga ".$name." je podešena u ".$role->name
+            ]);
         } else {
             return response()->json([
                 'message' => "Update: Requested role does no exist",
@@ -81,11 +94,11 @@ class RoleController extends Controller
             $role = Role::where('name', $name)->first();
             Role::destroy($role->id);
             return response()->json([
-                'message' => $name." role deleted",
+                'message' => $name." uloga izbrisana",
             ]);
         } else {
             return response()->json([
-                'message' => 'Delete: Requested role does not exist',
+                'message' => $name.' uloga ne postoji',
             ]);
         }
     }

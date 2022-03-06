@@ -32,6 +32,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordController::class, 'reset']);
 
+Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/job/{id}', [JobController::class, 'show']);
+
+Route::get('/user/{id}', [UserController::class, 'show']);
 
 
 
@@ -51,8 +55,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //                                         Accept or decline service requests
 
 Route::group(['middleware' => ['auth:sanctum', 'ability:Serviser,Admin']], function () {
-    Route::resource('jobs', JobController::class);
     Route::resource('services', ServiceController::class);
+    Route::post('/job', [JobController::class, 'store']);
+
+    Route::put('/job/{id}', [JobController::class, 'update']);
+    Route::delete('/job/{id}', [JobController::class, 'destroy']);
 });
 
 
@@ -64,5 +71,8 @@ Route::group(['middleware' => ['auth:sanctum', 'ability:Serviser,Admin']], funct
 Route::group(['middleware' => ['auth:sanctum', 'ability:Admin']], function () {
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/users', UserController::class);
+
+    Route::put('admin/job/{id}', [JobController::class, 'adminUpdate']);
+    Route::delete('admin/job/{id}', [JobController::class, 'adminDestroy']);
 });
 

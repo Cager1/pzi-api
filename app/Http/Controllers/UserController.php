@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('role')->get();
+        $users = User::with('role', 'jobs')->get();
         return response()->json([
             $users
         ]);
@@ -36,16 +36,27 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        if (User::find($id)) {
+            return User::find($id)->load('jobs', 'role');
+        } else {
+            return response()->json([
+                'message' => 'Ovaj korisnik ne postoji'
+            ]);
+        }
     }
 
     public function update(Request $request, $email)
     {
         if (User::where('email', $email)->first()) {
-            return User::where('email', $email)->first()->update($request->all());
+            User::where('email', $email)->first()->update($request->all());
+            $user = User::where('email', $request->email)->first();
+            return response()->json([
+                'user' => $user,
+                'message' => "Korisnik ".$user->name." je podešen"
+            ]);
         } else {
             return response()->json([
-                'message' => "Update: User doesn't exist",
+                'message' => "Ovaj korisnik ne postoji",
             ]);
         }
     }
@@ -53,15 +64,15 @@ class UserController extends Controller
     public function destroy($email)
     {
         if (User::where('email', $email)->first()) {
-            $user = User::where('name', $email)->first();
+            $user = User::where('email', $email)->first();
             $name = $user->name;
             User::destroy($user->id);
             return response()->json([
-                'message' => $name." role deleted",
+                'message' => "Korisnik ".$name."  je uklonjen.",
             ]);
         } else {
             return response()->json([
-                'message' => 'Delete: Requested role does not exist',
+                'message' => 'Korisnik ne postoji.',
             ]);
         }
     }
