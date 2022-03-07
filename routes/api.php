@@ -72,6 +72,7 @@ Route::group(['middleware' => ['auth:sanctum', 'ability:Admin']], function () {
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/users', UserController::class);
 
+    Route::post('admin/register', [AuthController::class, 'adminRegister']);
     Route::put('admin/job/{id}', [JobController::class, 'adminUpdate']);
     Route::delete('admin/job/{id}', [JobController::class, 'adminDestroy']);
 });

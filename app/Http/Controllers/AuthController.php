@@ -17,7 +17,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|string|unique:users,email|max:255',
             'password' => 'required|string|confirmed|min:6|max:255',
-            'role_id' => 'numeric',
+            'role_id' => 'numeric|lt:4|gt:1',
         ]);
 
         var_dump($attributes);
@@ -75,5 +75,24 @@ class AuthController extends Controller
         auth()->user()->tokens()->delete();
 
         return ['message' => 'Logged out', auth()];
+    }
+
+    public function adminRegister(Request $request) {
+        $attributes = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|string|unique:users,email|max:255',
+            'password' => 'required|string|confirmed|min:6|max:255',
+            'role_id' => 'numeric',
+        ]);
+
+        var_dump($attributes);
+
+        $user = User::create($attributes);
+
+        $response = [
+            'user' => $user,
+        ];
+
+        return response($response, 201);
     }
 }

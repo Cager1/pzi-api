@@ -138,7 +138,7 @@ class JobController extends Controller
             $job = Job::find($id);
             $name = $job->name;
             Job::destroy($job->id);
-            return resonse()->json([
+            return response()->json([
                 'message' => $name.' job deleted',
             ]);
         } else {
