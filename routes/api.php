@@ -32,10 +32,16 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordController::class, 'reset']);
 
+
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/job/{id}', [JobController::class, 'show']);
 
+
 Route::get('/user/{id}', [UserController::class, 'show']);
+
+
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{id}', [ServiceController::class, 'show']);
 
 
 
@@ -55,9 +61,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //                                         Accept or decline service requests
 
 Route::group(['middleware' => ['auth:sanctum', 'ability:Serviser,Admin']], function () {
-    Route::resource('services', ServiceController::class);
-    Route::post('/job', [JobController::class, 'store']);
 
+    Route::post('/job', [JobController::class, 'store']);
     Route::put('/job/{id}', [JobController::class, 'update']);
     Route::delete('/job/{id}', [JobController::class, 'destroy']);
 });
@@ -71,6 +76,10 @@ Route::group(['middleware' => ['auth:sanctum', 'ability:Serviser,Admin']], funct
 Route::group(['middleware' => ['auth:sanctum', 'ability:Admin']], function () {
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/users', UserController::class);
+
+    Route::post('/services', [ServiceController::class, 'store']);
+    Route::put('/services/{id}', [ServiceController::class, 'update']);
+    Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
 
     Route::post('admin/register', [AuthController::class, 'adminRegister']);
     Route::put('admin/job/{id}', [JobController::class, 'adminUpdate']);
