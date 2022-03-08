@@ -120,13 +120,23 @@ class JobController extends Controller
 
     public function adminUpdate(Request $request, $id)
     {
+        $services = $request->selection;
         $job = Job::find($id);
 
-        if ($job) {
-            return $job->update($request->all());
+        if (Job::find($id)) {
+            if ($request->selection) {
+                $job->services()->wherePivot('job_id','=',$job->id)->detach();
+                foreach ($services as $service) {
+                    $job->services()->attach($service);
+                }
+            }
+            return response()->json([
+                "job" => $job->update($request->all()),
+                'message' => 'Posao "'.$job->name.'" podešen'
+            ]);
         } else {
             return response()->json([
-                'message' => 'Update: Requested job does not exist',
+                'message' => 'Ovaj posao ne postoji.',
             ]);
         }
     }
@@ -143,7 +153,7 @@ class JobController extends Controller
             ]);
         } else {
             return response()->json([
-                'message' => 'Delete: Requested job does not exist',
+                'message' => 'Ovaj posao ne postoji.',
             ]);
         }
     }
